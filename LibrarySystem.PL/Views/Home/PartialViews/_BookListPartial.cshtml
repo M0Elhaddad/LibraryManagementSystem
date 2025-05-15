@@ -1,0 +1,71 @@
+﻿@using LibrarySystem.PL.Helpers
+@model PaginatedList<BookViewModel>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="container py-3">
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+        <button class="btn btn-outline-primary d-flex align-items-center gap-2"
+                id="prev" @prevDisabled>
+            <i class="bi bi-arrow-left-circle-fill fs-5"></i> Prev
+        </button>
+
+        <div class="fs-5 fw-semibold text-dark">
+            Page <span id="Index">@Model.PageIndex</span> of <span id="TotalPages">@Model.TotalPages</span>
+        </div>
+
+        <button class="btn btn-outline-primary d-flex align-items-center gap-2"
+                id="next" @nextDisabled>
+            Next <i class="bi bi-arrow-right-circle-fill fs-5"></i>
+        </button>
+    </div>
+
+    <!-- Book Cards Grid -->
+    <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-4 justify-content-center">
+        @if (Model?.Count() > 0)
+        {
+            @foreach (var book in Model)
+            {
+                <div class="col mb-5">
+                    <div class="card h-100 shadow-sm border-0 rounded-4">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
+                            <div class="text-center">
+                                <h5 class="fw-bold mb-2">@book.Title</h5>
+                                <p class="text-muted fst-italic mb-1">@book.Genre</p>
+                                @if (!string.IsNullOrWhiteSpace(book.Description))
+                                {
+                                    <p class="text-secondary small">@book.Description</p>
+                                }
+                                <p class="text-dark fw-semibold mb-1">Author: @book.AuthorName</p>
+
+                                @if (book.IsAvailable)
+                                {
+                                    <span class="badge bg-success mt-2">Available</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark mt-2 mb-2">Borrowed</span>
+                                    <a class="btn btn-sm btn-outline-dark mt-2"
+                                       asp-action="StartReturnTransaction"
+                                       asp-route-bookId="@book.Id">
+                                        Return
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted">
+                <p>No books found.</p>
+            </div>
+        }
+    </div>
+</div>

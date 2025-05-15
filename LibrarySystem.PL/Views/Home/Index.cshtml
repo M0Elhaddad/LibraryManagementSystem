@@ -1,0 +1,154 @@
+﻿@using LibrarySystem.PL.Helpers
+@model PaginatedList<BookViewModel>
+
+@{
+	ViewData["Title"] = "Home Page";
+}
+
+<div class="container-fluid">
+	<div class="row">
+
+		<!-- Aside Filter (Left Column) -->
+		<aside class="col-lg-3 mb-4">
+
+			<div class="shadow-sm rounded-4 border-0 h-100">
+				<div class="form-group mb-3">
+					<label for="PageSize" class="form-label fw-bold">Items Per Page</label>
+					<select id="PageSize" class="form-select shadow-sm transition-all" style="max-width: 200px;">
+						<option value="5">5</option>
+						<option value="10">10</option>
+						<option value="15">15</option>
+					</select>
+				</div>
+
+				<div class="card-header bg-light py-3 px-4 rounded-top-4">
+					<h5 class="mb-0 fw-bold">
+						<i class="bi bi-funnel-fill text-primary me-2"></i>Filter Books
+					</h5>
+				</div>
+				<div class="card-body px-4 py-3">
+					<form id="filterForm" class="row g-3">
+
+						<!-- Date Filters -->
+						<div class="col-12">
+							<label class="form-label fw-semibold">Borrow Date</label>
+							<input type="date" name="BorrowDate" class="form-control" />
+						</div>
+
+						<div class="col-12">
+							<label class="form-label fw-semibold">Return Date</label>
+							<input type="date" name="ReturnDate" class="form-control" />
+						</div>
+
+						<!-- Status Checkboxes -->
+						<div class="col-12">
+							<label class="form-label fw-semibold">Status</label>
+							<div class="form-check">
+								<input id="chkBorrowed" type="checkbox" class="form-check-input status-filter" name="chkBorrowed" value="true" />
+								<label class="form-check-label" for="chkBorrowed">Borrowed</label>
+							</div>
+							<div class="form-check mt-1">
+								<input id="chkAvailable" type="checkbox" class="form-check-input status-filter" name="chkAvailable" value="true" />
+								<label class="form-check-label" for="chkAvailable">Available</label>
+							</div>
+						</div>
+
+						<!-- Submit Button -->
+						<div class="col-12 d-flex justify-content-end mt-2">
+							<button type="submit" class="btn btn-primary w-100">
+								<i class="bi bi-filter-circle me-1"></i> Apply Filter
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</aside>
+
+		<!-- Book Cards (Right Column) -->
+		<section class="col-lg-9" id="booksTable">
+			<partial name="PartialViews/_BookListPartial" model="Model" />
+		</section>
+
+	</div>
+</div>
+
+@section Scripts {
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			$('#filterForm').on('submit', function (e) {
+				e.preventDefault();
+
+				$('#booksTable').slideUp(200, function () {
+					$.ajax({
+						url: '@Url.Action("Filter", "Home")',
+						method: 'GET',
+						data: $('#filterForm').serialize(),
+						success: function (partialView) {
+							$('#booksTable').html(partialView).slideDown(200);
+
+						},
+						error: function () {
+							alert("Failed to load tasks.");
+							$('#booksTable').slideDown(200); // restore if error
+						}
+					});
+				});
+			});
+
+		});
+			   $(document).on('click', '#next', function (e) {
+			e.preventDefault();
+			var Index = parseInt(document.getElementById("Index").innerText) + 1;
+			var pageSize = parseInt(document.getElementById("PageSize").value);
+
+			$.ajax({
+				url: '@Url.Action("Paging", "Home")',
+				method: 'GET',
+				data: { pageSize: pageSize, pageIndex: Index },
+				success: function (partialView) {
+					$('#booksTable').html(partialView).slideDown(200);
+				},
+				error: function () {
+					alert("Failed to load tasks.");
+					$('#booksTable').slideDown(200);
+				}
+			});
+		});
+		   $(document).on('click', '#prev', function (e) {
+			e.preventDefault();
+			var Index = parseInt(document.getElementById("Index").innerText) - 1;
+			var pageSize = parseInt(document.getElementById("PageSize").value);
+			$.ajax({
+				url: '@Url.Action("Paging", "Home")',
+				method: 'GET',
+				data: { pageSize: pageSize, pageIndex: Index },
+				success: function (partialView) {
+					$('#booksTable').html(partialView).slideDown(200);
+				},
+				error: function () {
+					alert("Failed to load tasks.");
+					$('#booksTable').slideDown(200);
+				}
+			});
+
+		});
+		 $(document).on('change', '#PageSize', function (e) {
+			e.preventDefault();
+			var pageSize = parseInt(document.getElementById("PageSize").value);
+			$.ajax({
+				url: '@Url.Action("Paging", "Home")',
+				method: 'GET',
+				data: { pageSize: pageSize, pageIndex: 1 },
+				success: function (partialView) {
+					$('#booksTable').html(partialView).slideDown(200);
+				},
+				error: function () {
+					alert("Failed to load tasks.");
+					$('#booksTable').slideDown(200);
+				}
+			});
+
+		});
+	</script>
+}
