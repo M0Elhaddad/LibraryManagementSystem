@@ -1,4 +1,4 @@
-# LibMan
+# Library Manangement System
 
 ## Setup
 
